@@ -52,13 +52,9 @@ By default, the services will be available at:
 
 ### 🧪 3. Run Tests (Optional)
 
-If you want to execute tests **inside a container**, rebuild with the test profile:
 
-```bash
-docker-compose -f docker-compose.test.yml up --build --abort-on-container-exit
-```
 
-If you just want to run tests locally (via IntelliJ or Maven):
+If you want to run tests locally (via IntelliJ or Maven):
 
 ```bash
 mvn test
@@ -73,9 +69,17 @@ After containers start, test the API with the following commands:
 **Create a Note:**
 
 ```bash
-curl -X POST "http://localhost:8080/api/notes" \
-  -H "Content-Type: application/json" \
-  -d "{\"title\":\"Test Note\",\"text\":\"This is my first note\",\"tags\":[\"PERSONAL\"]}"
+$body = @{
+    title = "Test Note"
+    text  = "This is my first note"
+    tags  = @("PERSONAL")
+} | ConvertTo-Json
+
+Invoke-RestMethod -Uri "http://localhost:8080/api/notes" `
+                  -Method Post `
+                  -ContentType "application/json" `
+                  -Body $body
+
 ```
 
 **Get All Notes:**
@@ -87,15 +91,29 @@ curl "http://localhost:8080/api/notes?page=0&size=10"
 **Update a Note:**
 
 ```bash
-curl -X PUT "http://localhost:8080/api/notes/{id}" \
-  -H "Content-Type: application/json" \
-  -d "{\"title\":\"Updated Title\",\"text\":\"Updated text\",\"tags\":[\"BUSINESS\",\"IMPORTANT\"]}"
+$id = "<insert ID your note>"
+
+$body = @{
+    title = "Updated Title"
+    text  = "Updated text"
+    tags  = @("BUSINESS","IMPORTANT")
+} | ConvertTo-Json
+
+Invoke-RestMethod -Uri "http://localhost:8080/api/notes/$id" `
+                  -Method Put `
+                  -ContentType "application/json" `
+                  -Body $body
+
 ```
 
 **Delete a Note:**
 
 ```bash
-curl -X DELETE "http://localhost:8080/api/notes/{id}"
+$id = "<Insert ID your note>"
+
+Invoke-RestMethod -Uri "http://localhost:8080/api/notes/$id" `
+                  -Method Delete
+
 ```
 
 ---
